@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @SpringBootTest
@@ -25,19 +26,20 @@ class UserMapperTest {
         user.setInfo("{\"age\": 24, \"intro\": \"英文老师\", \"gender\": \"female\"}");
         user.setCreateTime(LocalDateTime.now());
         user.setUpdateTime(LocalDateTime.now());
-        userMapper.saveUser(user);
+        userMapper.insert(user);
     }
 
     @Test
     void testSelectById() {
-        User user = userMapper.queryUserById(5L);
+        User user = userMapper.selectById(5L);
         System.out.println("user = " + user);
     }
 
 
     @Test
     void testQueryByIds() {
-        List<User> users = userMapper.queryUserByIds(List.of(1L, 2L, 3L, 4L));
+        // 由于是java8,List.of是高版本才能使用的，所以换掉
+        List<User> users = userMapper.selectBatchIds(Arrays.asList(1L, 2L, 3L, 4L));
         users.forEach(System.out::println);
     }
 
@@ -46,11 +48,11 @@ class UserMapperTest {
         User user = new User();
         user.setId(5L);
         user.setBalance(20000);
-        userMapper.updateUser(user);
+        userMapper.updateById(user);
     }
 
     @Test
     void testDeleteUser() {
-        userMapper.deleteUser(5L);
+        userMapper.deleteById(5L);
     }
 }
