@@ -7,4 +7,5 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface UserMapper extends BaseMapper<User> {
+    List<User> queryUserByIds(@Param("ids") List<Long> ids);
 }
