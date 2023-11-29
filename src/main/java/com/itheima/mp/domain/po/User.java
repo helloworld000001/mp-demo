@@ -9,14 +9,15 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("tb_user")
+// 当把表名修改为tb_user就需要指定
+// @TableName("tb_user")
 public class User {
 
     /**
      * 用户id
      */
     // 如果不指定类型是自增类型，自动加上的id使用雪花算法（很长一串），而不是id自增
-    @TableId(type = IdType.AUTO)
+    // @TableId(type = IdType.AUTO)
     private Long id;
 
     /**

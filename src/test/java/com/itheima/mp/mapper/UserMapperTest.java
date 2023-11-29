@@ -19,7 +19,7 @@ class UserMapperTest {
     void testInsert() {
         User user = new User();
         // user.setId(5L);
-        user.setUsername("Lucy");
+        user.setUsername("Ersanzi");
         user.setPassword("123");
         user.setPhone("18688990011");
         user.setBalance(200);
@@ -40,6 +40,13 @@ class UserMapperTest {
     void testQueryByIds() {
         // 由于是java8,List.of是高版本才能使用的，所以换掉
         List<User> users = userMapper.selectBatchIds(Arrays.asList(1L, 2L, 3L, 4L));
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    void testQueryByIdsWithProperties() {
+        // 由于是java8,List.of是高版本才能使用的，所以换掉
+        List<User> users = userMapper.queryUserByIds(Arrays.asList(1L, 2L, 3L, 4L));
         users.forEach(System.out::println);
     }
 
