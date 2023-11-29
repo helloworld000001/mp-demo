@@ -9,4 +9,5 @@ import com.itheima.mp.domain.po.User;
  * 2023/11/29 14:50
  */
 public interface IUserService extends IService<User> {
+    void deductBalance(Long id, Integer money);
 }
