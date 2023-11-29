@@ -119,4 +119,17 @@ class UserMapperTest {
         // 要更新的内容在wrapper写，实体就设置为null
         userMapper.update(null, wrapper);
     }
+
+    @Test
+    void testCustomSqlWrapper(){
+        // 更新id为1，2，4的用户余额，都扣200
+        List<Long> ids = Arrays.asList(1L, 2L, 4L);
+        int amount = 200;
+
+        QueryWrapper<User> wrapper = new QueryWrapper<User>()
+                .in("id", ids);
+
+        // 调用自定义方法
+        userMapper.updateBalanceByIds(wrapper, amount);
+    }
 }
