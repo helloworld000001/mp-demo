@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.itheima.mp.enums.UserStatus;
 import lombok.Data;
 
@@ -11,7 +12,8 @@ import java.time.LocalDateTime;
 
 @Data
 // 当把表名修改为tb_user就需要指定
-// @TableName("tb_user")
+// 需要配置resultmap的自动封装
+@TableName(autoResultMap = true)
 public class User {
 
     /**
@@ -43,7 +45,10 @@ public class User {
     /**
      * 详细信息
      */
-    private String info;
+    // 原本是String类型（json字符串），现在用Userinfo进行封装，方便查询
+    // 使用JacksonTypeHandler做类型处理器
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private UserInfo info;
 
     /**
      * 使用状态（1正常 2冻结）
