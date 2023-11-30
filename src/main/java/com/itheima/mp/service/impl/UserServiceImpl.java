@@ -1,14 +1,22 @@
 package com.itheima.mp.service.impl;
 
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.extension.toolkit.Db;
+import com.itheima.mp.domain.po.Address;
 import com.itheima.mp.domain.po.User;
+import com.itheima.mp.domain.vo.AddressVO;
+import com.itheima.mp.domain.vo.UserVO;
 import com.itheima.mp.mapper.UserMapper;
 import com.itheima.mp.service.IUserService;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @auther 陈彤琳
@@ -24,12 +32,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         User user = getById(id);
 
         // 2. 校验用户状态
-        if (user == null || user.getStatus() == 2){
+        if (user == null || user.getStatus() == 2) {
             throw new RuntimeException("用户状态异常");
         }
 
         // 3. 校验余额是否充足
-        if (user.getBalance() < money){
+        if (user.getBalance() < money) {
             throw new RuntimeException("用户余额不足");
         }
 
@@ -57,5 +65,66 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 .le(maxBalance != null, User::getBalance, maxBalance)
                 .ge(minBalance != null, User::getBalance, minBalance)
                 .list();
+    }
+
+    @Override
+    public UserVO queryUserAndAddressById(Long id) {
+        // 1. 查询用户
+        User user = getById(id);
+        if (user == null || user.getStatus() == 2) {
+            throw new RuntimeException("用户状态异常");
+        }
+
+        // 2. 查询地址
+        List<Address> addresses = Db.lambdaQuery(Address.class) // 要查询的类
+                .eq(Address::getUserId, id) // Address中等于当前id的
+                .list();// 拿到的是多个地址，使用的是list
+
+        // 3. 封装VO
+        // 3.1 User对象 -- UserVO
+        UserVO userVO = BeanUtil.copyProperties(user, UserVO.class);
+
+        // 3.2 Address对象 -- AddressVO
+        if (!CollUtil.isEmpty(addresses)) {
+            List<AddressVO> addressesVO = BeanUtil.copyToList(addresses, AddressVO.class);
+            userVO.setAddresses(addressesVO);
+        }
+        return userVO;
+    }
+
+    @Override
+    public List<UserVO> queryUserAndAddressByIds(List<Long> ids) {
+        // 1. 批量查询用户
+        List<User> users = listByIds(ids);
+        if (CollUtil.isEmpty(users)) {
+            return Collections.emptyList();
+        }
+
+        // 2. 批量查询地址
+        List<Long> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+        // 2.1 获取根据用户id获取到所有地址
+        List<Address> addresses = Db.lambdaQuery(Address.class)
+                .in(Address::getUserId, userIds)
+                .list();
+        // 2.2 所有Address转VO返回
+        List<AddressVO> addressVOList = BeanUtil.copyToList(addresses, AddressVO.class);
+        // 2.3 对用户地址集合分组:一个用户是一组，有该用户对应的地址
+        // 根据AddressVO::getUserId进行分组，获得的Map中key是AddressVO::getUserId,value是根据id搜索到的Address集合
+        Map<Long, List<AddressVO>> addressMap = new HashMap<>(0);
+        if (CollUtil.isNotEmpty(addressVOList)) {
+            addressMap = addressVOList.stream().collect(Collectors.groupingBy(AddressVO::getUserId));
+        }
+
+        // 3. 转VO返回
+        List<UserVO> list = new ArrayList<>(users.size());
+
+        for (User user : users) {
+            // 3.1 User -- UserVO
+            UserVO vo = BeanUtil.copyProperties(user, UserVO.class);
+            list.add(vo);
+
+            vo.setAddresses(addressMap.get(user.getId()));
+        }
+        return list;
     }
 }
