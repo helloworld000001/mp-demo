@@ -46,24 +46,17 @@ public class UserController {
         userService.removeById(id);
     }
 
+    // 查询用户同时，查询出用户对应的所有地址
     @ApiOperation("根据id查询用户接口")
     @GetMapping("{id}")
     public UserVO queryUserById(@ApiParam("用户id") @PathVariable("id") Long id){
-        // 1. 查询数据库得到用户PO
-        User user = userService.getById(id);
-
-        // 2. 将用户PO拷贝到VO返回给前端
-        return BeanUtil.copyProperties(user, UserVO.class);
+        return userService.queryUserAndAddressById(id);
     }
 
     @ApiOperation("根据ids批量查询用户接口")
     @GetMapping
     public List<UserVO> queryUserByIds(@ApiParam("用户id集合") @RequestParam("ids") List<Long> ids){
-        // 1. 查询数据库得到用户PO
-        List<User> users = userService.listByIds(ids);
-
-        // 2. 将用户PO拷贝到VO返回给前端
-        return BeanUtil.copyToList(users, UserVO.class);
+        return userService.queryUserAndAddressByIds(ids);
     }
 
     @ApiOperation("扣减用户余额接口")

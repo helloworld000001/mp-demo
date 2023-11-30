@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 查询时的VO,对于pwd，time等字段查询时不需要所以没有
  */
@@ -25,4 +27,8 @@ public class UserVO {
 
     @ApiModelProperty("账户余额")
     private Integer balance;
+
+    // VO用于返回给前端的实体:因为查询用户同时返回用户的所有地址，所以要把地址封装上
+    @ApiModelProperty("用户的收获地址")
+    private List<AddressVO> addresses;
 }
